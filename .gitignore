@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+# AHK specific
+*.ahk.exe
+*.upx
+
+# OCR library temp files
+Lib/OCR/temp/

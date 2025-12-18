@@ -1,120 +1,77 @@
-# 🤖 ARC Raiders Tool
+# Arc Raiders Tools (AHK v2 Overlay)
 
-A powerful desktop utility for ARC Raiders that automatically detects item popups on screen and displays detailed information about items, including their dependencies for quests and hideout modules.
+A lightweight AutoHotkey v2 overlay for Arc Raiders that provides instant item identification, value lookups, and crafting recipes using screen scraping (OCR).
 
 ## Features
 
-- **Real-time Item Detection**: Uses computer vision to detect item popups when they appear on screen
-- **Comprehensive Item Info**: Displays item descriptions, categories, and values
-- **Quest Dependencies**: Shows which quests require the item and in what quantities
-- **Hideout Module Requirements**: Lists hideout modules that need the item, including tier information
-- **Beautiful Console UI**: Rich, colorful interface with tables and panels for easy reading
-- **Hotkey Controls**: Simple keyboard shortcuts for activation and quitting
-- **OCR Integration**: Extracts item names from popups using Tesseract OCR
+- **Always-on-Top Overlay:** Unobtrusive, transparent, click-through overlay.
+- **Template Matching:** Automatically finds tooltips using image recognition.
+- **Instant Scan:** Press `Ctrl+D` to scan and identify items.
+- **Smart Lookup:** Uses fuzzy matching to find items even with OCR typos.
+- **Rich Data:** Displays item Value, Weight, and Crafting Recipes.
+- **Performance Optimized:** Scans only the tooltip area, not the entire screen.
 
-## Requirements
+## Prerequisites
 
-- Python 3.9+
-- Windows (for screen capture)
-- Tesseract OCR installed and in PATH
+- **AutoHotkey v2:** Download and install from [autohotkey.com](https://www.autohotkey.com/).
+- **Arc Raiders Data:** Ensure the `arcraiders-data` repository is cloned/located alongside the `src` folder.
 
 ## Installation
 
-1. **Install uv** (Python package manager):
-
-   On Windows (PowerShell):
-   ```powershell
-   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-   ```
-
-   On macOS/Linux:
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   ```
-
-   Or with pip:
-   ```bash
-   pip install uv
-   ```
-
-   More info: https://docs.astral.sh/uv/getting-started/installation/
-
-2. Clone this repository:
-   ```bash
-   git clone https://github.com/onycher/arc-tools.git
-   cd arc-tools
-   ```
-
-3. Install Tesseract OCR:
-   - Download from: https://github.com/UB-Mannheim/tesseract/wiki
-   - Add to your system PATH
-
-4. Place the `actions.png` template image in the root directory or use the default one provided in the repository if it works for you.
-
-**Note**: `uv` will automatically handle all Python dependencies when you run the tool.
+1.  Clone this repository.
+2.  Ensure your folder structure looks like this:
+    ```
+    /ProjectRoot
+      /arcraiders-data  <-- JSON data files here
+      /src              <-- This tool's source code
+        main.ahk
+    ```
 
 ## Usage
 
-Run the tool:
-```bash
-uv run main.py
-```
-
-The tool will start in the background. When you see an item popup in ARC Raiders:
-
-1. Press **Ctrl+Alt+S** to scan the popup
-2. View the detailed item information in the console
-3. Press **Ctrl+Q** to quit the application
-
-## Hotkeys
-
-- **Ctrl+Alt+S**: Activate item info lookup
-- **Ctrl+Q**: Quit the application
-
-## Configuration
-
-The tool uses the following data files from the https://github.com/RaidTheory/arcraiders-data:
-- `items.json`
-- `quests.json`
-- `hideoutModules.json`
-- `projects.json`
-
-Ensure these files are present in the correct relative paths.
+1.  Run `src/main.ahk` (Double-click or run from command line).
+2.  The overlay will appear at the top-left of your screen.
+3.  **In Game:**
+    - **Hover your mouse** over an item (tooltip will appear)
+    - Press **Ctrl+D** to scan
+    - The tool automatically finds the tooltip using the action icons
+    - The overlay will update with the item's details
+    - Works automatically - no configuration needed!
+4.  **Toggle Overlay:** Press **F12** to show/hide the overlay.
 
 ## How It Works
 
-1. **Screen Capture**: Uses MSS to capture the primary monitor
-2. **Template Matching**: Locates the actions button using OpenCV template matching
-3. **Popup Detection**: Uses flood fill to isolate the item popup area
-4. **Text Extraction**: Applies OCR to extract the item name
-5. **Data Lookup**: Queries JSON data for item details and dependencies
-6. **UI Display**: Presents information in a rich console interface
+The tool uses **template matching** to locate tooltips:
+
+1. When you press `Ctrl+D`, it searches for the "actions" icon row (from `actions.png`)
+2. Once found, it scans the area directly below the icons (where tooltip text is)
+3. OCR extracts the text from that specific region
+4. Fuzzy matching identifies the item and displays its information
+
+This approach is **fast** (scans ~240,000 pixels instead of 2M+) and **reliable** (works regardless of tooltip position on screen).
+
+## Hotkeys
+
+- **F12** - Toggle overlay visibility
+- **Ctrl+D** - Scan for items and display information
+
+## Configuration
+
+The tool automatically saves its scan area configuration in `config.json`. You can manually adjust these values if needed:
+
+- `ScanOffsetX` - Horizontal offset from template (default: 0)
+- `ScanOffsetY` - Vertical offset from template (default: 40)
+- `ScanWidth` - Width of scan region (default: 600)
+- `ScanHeight` - Height of scan region (default: 400)
 
 ## Troubleshooting
 
-- **Popup not detected**: Ensure the `actions.png` template matches your game's UI
-- **OCR fails**: Check Tesseract installation and PATH
-- **No item data**: Verify JSON file paths and contents
-- **Low confidence**: The tool requires 70%+ template match confidence
+- **"Template not found":** The tool can't find the action icons. Ensure tooltips are visible and try adjusting in-game graphics settings. The tool will fall back to scanning the full screen.
+- **"No match found":** The scanned text might be garbled. Ensure good lighting/contrast in-game.
+- **"Scanner Error":** Check that `actions.png` exists in the `src/` directory.
+- **Overlay not visible:** Press `F12`. Ensure the game is in "Borderless Windowed" mode if "Fullscreen" prevents the overlay from drawing on top.
+- **Slow performance:** If template matching is slow, try adjusting the ImageSearch variation parameter in `Scanner.ahk` (line 72).
 
-## Contributing
+## Dependencies
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the IDGAF License - see the LICENSE file for details.
-
-## Credits
-
-- Built with OpenCV, Tesseract, Rich, and other Python libraries
-- Data sourced from the ARC Data Compendium
-- Inspired by the ARC Raiders community
-
----
-
-**Note**: This tool is for educational and personal use. Ensure compliance with ARC Raiders terms of service.
+- **Descolada/OCR:** Included in `src/Lib/OCR.ahk`.
